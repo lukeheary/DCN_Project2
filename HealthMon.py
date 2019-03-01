@@ -13,6 +13,8 @@ def main():
 
     ips = []
     sockets = []
+    firstSock = []
+    switch = True
 
     infoPath = args[1]
     for x in args[2:]:
@@ -21,17 +23,23 @@ def main():
         address = stuff[0]
         port = stuff[1]
 
+        if switch:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((address, int(port)))
+            firstSock.append(sock)
+            switch = False
+
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sockets.append(sock)
         sock.connect((address, int(port)))
 
-    records = readData(infoPath)
-    sendRecords(records, sockets)
+    readData(infoPath, firstSock)
+    #sendRecords(records, sockets)
     readSamples(sockets)
 
     # get Sample records from Stdin and pass them to each of the correct sockets
 
-def readData(infoPath):
+def readData(infoPath, sockets):
     file = open(infoPath, "r")
 
     records = []
@@ -45,7 +53,8 @@ def readData(infoPath):
                 counter += 1
             else:
                 record.append(line)
-                records.append(record)
+                data = json.dumps(record)
+                sockets[0].send(data.encode())
                 record = []
                 counter = 0
 
@@ -63,9 +72,7 @@ def readSamples(sockets):
         lineArray = line.split(", ")
         destIndex = int(lineArray[0]) - 1 # gets the first index and subtracts the value by 1 for interacting
         destSocket = sockets[destIndex]
-        #data = json.dumps({"sample": line})
         data = json.dumps(line)
-
         destSocket.send(data.encode())
 
 

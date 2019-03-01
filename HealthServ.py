@@ -3,6 +3,7 @@
 import Queue
 import json
 import select
+import time
 from threading import Thread
 import socket
 import optparse
@@ -27,11 +28,20 @@ def main():
         sock.listen(5)
 
     # obtains all of the records from the first IP address
+    data = ""
     conn, addr = sockets[0].accept()
-    data = conn.recv(1024)
-    data = json.loads(data.decode())
-    records = data.get("records")
+    while True:
+        readable, _, _ = select.select([sockets[0]], [], [])
+        for x in readable:
+            time.sleep(1)
+            data = conn.recv(1024)
+            break
+        break
 
+    data = data.strip("\"")
+    records = data.split("][")
+    records[0] = records[0].strip("[")
+    records[len(records) - 1] = records[len(records) - 1].strip("]")
     inputs = []
     for x in sockets:
         inputs.append(x)
@@ -54,12 +64,6 @@ def main():
 
     printAll(records, sampleSets)
 
-def listenToClient(sock):
-    while True:
-        client, address = sock.accept()
-        client.settimeout(60)
-
-
 # Prints all of the data using all of the calculate functions below
 def printAll(records, sampleSets):
 
@@ -79,12 +83,19 @@ def printAll(records, sampleSets):
     for x in dataDict:
         d = dataDict.get(str(dictCounter))
         record = records[counter]
+        record = record.split("\", \"")
+        c = 0
+        for x in record:
+            record[c] = record[c].replace('"', '')
+            c += 1
+
+
         print(record[0] + "\n" + record[1] + "\n" + record[2] + "\n" + record[3] + "\n")
         dates = calculateDates(d)
         print("From " + dates[0] + " to " + dates[1])
         calculateAveragePulse(d)
-        print("Average Pulse: " + calculateAveragePulse(d))
-        print("Average Blood Oxygen: " + calculateAverageBlood(d))
+        print("Average Pulse: " + "%.1f" % float(calculateAveragePulse(d)))
+        print("Average Blood Oxygen: " + "%.1f" % float(calculateAverageBlood(d)))
         print("Total Steps: " + calculateTotalSteps(d))
         print("\n")
         counter += 1
