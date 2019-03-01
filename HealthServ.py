@@ -40,8 +40,6 @@ def main():
 
     data = data.strip("\"")
     records = data.split("][")
-    records[0] = records[0].strip("[")
-    records[len(records) - 1] = records[len(records) - 1].strip("]")
     inputs = []
     for x in sockets:
         inputs.append(x)
@@ -83,12 +81,7 @@ def printAll(records, sampleSets):
     for x in dataDict:
         d = dataDict.get(str(dictCounter))
         record = records[counter]
-        record = record.split("\", \"")
-        c = 0
-        for x in record:
-            record[c] = record[c].replace('"', '')
-            c += 1
-
+        record = record.split(":")
 
         print(record[0] + "\n" + record[1] + "\n" + record[2] + "\n" + record[3] + "\n")
         dates = calculateDates(d)

@@ -34,9 +34,7 @@ def main():
         sock.connect((address, int(port)))
 
     readData(infoPath, firstSock)
-    #sendRecords(records, sockets)
     readSamples(sockets)
-
     # get Sample records from Stdin and pass them to each of the correct sockets
 
 def readData(infoPath, sockets):
@@ -54,16 +52,12 @@ def readData(infoPath, sockets):
             else:
                 record.append(line)
                 data = json.dumps(record)
-                sockets[0].send(data.encode())
+                recordStr = ':'.join(str(e) for e in record) + "]["
+                sockets[0].send(recordStr)
                 record = []
                 counter = 0
 
     return records
-
-def sendRecords(records, sockets):
-    data = json.dumps({"records": records})
-    sockets[0].send(data.encode())
-    print "No more user data to send."
 
 def readSamples(sockets):
     file = open("samples.dat", "r")
