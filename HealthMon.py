@@ -3,7 +3,6 @@
 
 import socket
 import optparse
-from threading import Thread
 import json
 
 def main():
@@ -65,9 +64,10 @@ def readSamples(sockets):
         line = line.strip("\n")
         lineArray = line.split(", ")
         destIndex = int(lineArray[0]) - 1 # gets the first index and subtracts the value by 1 for interacting
+
+        line = ':'.join(str(e) for e in lineArray) + "]["
         destSocket = sockets[destIndex]
-        data = json.dumps(line)
-        destSocket.send(data.encode())
+        destSocket.send(line)
 
 
 main()

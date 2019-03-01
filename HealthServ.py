@@ -1,14 +1,11 @@
 # Name: Luke Heary
 # Date: 2/22/19
-import Queue
-import json
+
 import select
 import time
-from threading import Thread
 import socket
 import optparse
 from statistics import mean
-
 
 def main():
 
@@ -69,12 +66,15 @@ def printAll(records, sampleSets):
     for x in sampleSets:
         if x[0]:
             for y in x:
-                y = y.split(", ")
-                cur = y[1]
-                if cur in dataDict:
-                    dataDict[cur].append(y)
-                else:
-                    dataDict[cur] = [y]
+                y = y.split("][")
+                for z in y:
+                    if z:
+                        z = z.split(":")
+                        cur = z[1]
+                        if cur in dataDict:
+                            dataDict[cur].append(z)
+                        else:
+                            dataDict[cur] = [z]
 
     counter = 0
     dictCounter = 1
@@ -90,7 +90,7 @@ def printAll(records, sampleSets):
         print("Average Pulse: " + "%.1f" % float(calculateAveragePulse(d)))
         print("Average Blood Oxygen: " + "%.1f" % float(calculateAverageBlood(d)))
         print("Total Steps: " + calculateTotalSteps(d))
-        print("\n")
+        print("")
         counter += 1
         dictCounter += 1
 
@@ -136,5 +136,3 @@ def calculateTotalSteps(samples):
 
 main()
 
-# TODO:
-# 1. Won't read through the first socket after records read in
