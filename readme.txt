@@ -1,4 +1,5 @@
 Version: Python 2.7
+Purpose: Used to send user records and sample records from a client to a server over a given amount of socket connections
 
 Example of command line for HealthServ.py:
 

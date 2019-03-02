@@ -128,7 +128,6 @@ def calculateAverageBlood(samples):
 
     return str(sum / len(allBlood))
 
-
 def calculateTotalSteps(samples):
     allSteps = []
     for sample in samples:
