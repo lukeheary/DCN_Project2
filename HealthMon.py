@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 # Name: Luke Heary
 # Date: 2/22/19
 
 import socket
 import optparse
-import json
+import sys
 
 def main():
 
@@ -15,8 +17,8 @@ def main():
     firstSock = []
     switch = True
 
-    infoPath = args[1]
-    for x in args[2:]:
+    infoPath = args[0]
+    for x in args[1:]:
         ips.append(x)
         stuff = x.split(":")
         address = stuff[0]
@@ -32,11 +34,10 @@ def main():
         sockets.append(sock)
         sock.connect((address, int(port)))
 
-    readData(infoPath, firstSock)
-    readSamples(sockets)
-    # get Sample records from Stdin and pass them to each of the correct sockets
+    sendUserData(infoPath, firstSock)
+    sendSampleData(sockets)
 
-def readData(infoPath, sockets):
+def sendUserData(infoPath, sockets):
     file = open(infoPath, "r")
 
     records = []
@@ -44,13 +45,12 @@ def readData(infoPath, sockets):
     record = []
     for line in file:
         line = line.strip("\n")
-        if(line != ''):
+        if line != '':
             if counter < 3:
                 record.append(line)
                 counter += 1
             else:
                 record.append(line)
-                data = json.dumps(record)
                 recordStr = ':'.join(str(e) for e in record) + "]["
                 sockets[0].send(recordStr)
                 record = []
@@ -58,16 +58,14 @@ def readData(infoPath, sockets):
 
     return records
 
-def readSamples(sockets):
-    file = open("samples.dat", "r")
-    for line in file:
+def sendSampleData(sockets):
+    #file = open("samples.dat", "r")
+    for line in sys.stdin:
         line = line.strip("\n")
         lineArray = line.split(", ")
         destIndex = int(lineArray[0]) - 1 # gets the first index and subtracts the value by 1 for interacting
-
         line = ':'.join(str(e) for e in lineArray) + "]["
         destSocket = sockets[destIndex]
         destSocket.send(line)
-
 
 main()

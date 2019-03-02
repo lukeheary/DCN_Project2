@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Name: Luke Heary
 # Date: 2/22/19
 
@@ -5,7 +7,6 @@ import select
 import time
 import socket
 import optparse
-from statistics import mean
 
 def main():
 
@@ -51,10 +52,7 @@ def main():
                 sampleData = conn.recv(1024)
             else:
                 sampleData = conn.recv(1024)
-            dataList = sampleData.split("\"\"""")
-            dataList[0] = dataList[0].strip("\"")
-            dataList[len(dataList) - 1] = dataList[len(dataList) - 1].strip("\"")
-            sampleSets.append(dataList)
+            sampleSets.append(sampleData)
         break
 
     printAll(records, sampleSets)
@@ -65,16 +63,15 @@ def printAll(records, sampleSets):
     dataDict = {}
     for x in sampleSets:
         if x[0]:
+            x = x.split("][")
             for y in x:
-                y = y.split("][")
-                for z in y:
-                    if z:
-                        z = z.split(":")
-                        cur = z[1]
-                        if cur in dataDict:
-                            dataDict[cur].append(z)
-                        else:
-                            dataDict[cur] = [z]
+                if y:
+                    y = y.split(":")
+                    cur = y[1]
+                    if cur in dataDict:
+                        dataDict[cur].append(y)
+                    else:
+                        dataDict[cur] = [y]
 
     counter = 0
     dictCounter = 1
@@ -111,8 +108,11 @@ def calculateAveragePulse(samples):
         allPulses.extend(pulses.split(" "))
 
     allPulses = [int(i) for i in allPulses]
-    average = mean(allPulses)
-    return str(average)
+    sum = 0
+    for x in allPulses:
+        sum += x
+
+    return str(sum / len(allPulses))
 
 def calculateAverageBlood(samples):
     allBlood = []
@@ -121,8 +121,13 @@ def calculateAverageBlood(samples):
         allBlood.extend(blood.split(" "))
 
         allBlood = [int(i) for i in allBlood]
-    average = mean(allBlood)
-    return str(average)
+
+    sum = 0
+    for x in allBlood:
+        sum += x
+
+    return str(sum / len(allBlood))
+
 
 def calculateTotalSteps(samples):
     allSteps = []
@@ -131,8 +136,11 @@ def calculateTotalSteps(samples):
         allSteps.extend(steps.split(" "))
 
         allSteps = [int(i) for i in allSteps]
-    total = sum(allSteps)
-    return str(total)
+
+    sum = 0
+    for x in allSteps:
+        sum += x
+
+    return str(sum)
 
 main()
-
